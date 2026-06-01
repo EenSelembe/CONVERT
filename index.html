@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EEN CONVERT - Login</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f0f0f;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    color:white;
+    padding:20px;
+}
+
+.login-box{
+    width:100%;
+    max-width:400px;
+    background:#1b1b1b;
+    padding:30px;
+    border-radius:20px;
+    border:1px solid #2d2d2d;
+}
+
+.logo{
+    text-align:center;
+    font-size:35px;
+    font-weight:bold;
+    color:#00d26a;
+}
+
+.subtitle{
+    text-align:center;
+    color:#999;
+    margin-top:8px;
+    margin-bottom:30px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    color:#ccc;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border:none;
+    outline:none;
+    border-radius:12px;
+    background:#2a2a2a;
+    color:white;
+    margin-bottom:15px;
+    font-size:15px;
+}
+
+.password-box{
+    position:relative;
+}
+
+.toggle{
+    position:absolute;
+    right:15px;
+    top:15px;
+    cursor:pointer;
+    color:#bbb;
+    user-select:none;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#00d26a;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.error{
+    margin-top:15px;
+    text-align:center;
+    color:#ff5252;
+}
+
+.info{
+    margin-top:20px;
+    text-align:center;
+    color:#888;
+    font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<div class="login-box">
+
+<div class="logo">EEN CONVERT</div>
+<div class="subtitle">Convert Files Fast & Easy</div>
+
+<label>Username</label>
+<input type="text" id="username" placeholder="Masukkan username">
+
+<label>Password</label>
+
+<div class="password-box">
+<input type="password" id="password" placeholder="Masukkan password">
+<span class="toggle" onclick="togglePassword()">👁️</span>
+</div>
+
+<button onclick="login()">LOGIN</button>
+
+<div class="error" id="error"></div>
+
+<div class="info">
+© 2026 EEN CONVERT
+</div>
+
+</div>
+
+<script>
+
+// Daftar akun
+const users = [
+    {
+        username: "alfa",
+        password: "een123"
+    },
+    {
+        username: "admin",
+        password: "admin123"
+    }
+];
+
+// Jika sudah login langsung ke home
+if(localStorage.getItem("login") === "true"){
+    window.location.href = "home.html";
+}
+
+function login(){
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const password =
+        document.getElementById("password").value.trim();
+
+    const validUser = users.find(user =>
+        user.username === username &&
+        user.password === password
+    );
+
+    if(validUser){
+
+        localStorage.setItem("login","true");
+        localStorage.setItem("username",username);
+
+        window.location.href = "home.html";
+
+    }else{
+
+        document.getElementById("error").innerText =
+        "Username atau password salah!";
+    }
+}
+
+function togglePassword(){
+
+    const pass =
+    document.getElementById("password");
+
+    if(pass.type === "password"){
+        pass.type = "text";
+    }else{
+        pass.type = "password";
+    }
+}
+
+// Enter untuk login
+document.addEventListener("keypress",function(e){
+
+    if(e.key === "Enter"){
+        login();
+    }
+
+});
+</script>
+
+</body>
+</html>
