@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>EEN CONVERT</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f0f0f;
+    color:white;
+    min-height:100vh;
+}
+
+header{
+    text-align:center;
+    padding:30px 20px;
+    background:#181818;
+    border-bottom:1px solid #2a2a2a;
+}
+
+.logo{
+    font-size:38px;
+    font-weight:bold;
+    color:#00d26a;
+}
+
+.subtitle{
+    color:#aaa;
+    margin-top:8px;
+}
+
+.search-box{
+    padding:15px;
+}
+
+.search-box input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#1e1e1e;
+    color:white;
+    font-size:15px;
+}
+
+.container{
+    padding:15px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+
+.card{
+    background:#1b1b1b;
+    border-radius:16px;
+    padding:20px 10px;
+    text-decoration:none;
+    color:white;
+    text-align:center;
+    transition:0.2s;
+    border:1px solid #2d2d2d;
+}
+
+.card:hover{
+    transform:scale(1.03);
+}
+
+.icon{
+    font-size:35px;
+    margin-bottom:10px;
+}
+
+.title{
+    font-size:14px;
+    font-weight:bold;
+}
+
+footer{
+    text-align:center;
+    padding:25px;
+    color:#777;
+    font-size:13px;
+}
+
+@media(max-width:480px){
+    .title{
+        font-size:13px;
+    }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo">EEN CONVERT</div>
+    <div class="subtitle">Convert Files Fast & Easy</div>
+</header>
+
+<div class="search-box">
+    <input type="text" id="search" placeholder="Cari fitur...">
+</div>
+
+<div class="container">
+
+<div class="grid" id="menuGrid">
+
+<a href="image-to-pdf.html" class="card">
+    <div class="icon">🖼️</div>
+    <div class="title">IMAGE TO PDF</div>
+</a>
+
+<a href="pdf-to-image.html" class="card">
+    <div class="icon">📄</div>
+    <div class="title">PDF TO IMAGE</div>
+</a>
+
+<a href="word-to-pdf.html" class="card">
+    <div class="icon">📝</div>
+    <div class="title">WORD TO PDF</div>
+</a>
+
+<a href="pdf-to-word.html" class="card">
+    <div class="icon">📄</div>
+    <div class="title">PDF TO WORD</div>
+</a>
+
+<a href="excel-to-pdf.html" class="card">
+    <div class="icon">📊</div>
+    <div class="title">EXCEL TO PDF</div>
+</a>
+
+<a href="pdf-to-excel.html" class="card">
+    <div class="icon">📄</div>
+    <div class="title">PDF TO EXCEL</div>
+</a>
+
+<a href="ppt-to-pdf.html" class="card">
+    <div class="icon">📽️</div>
+    <div class="title">POWERPOINT TO PDF</div>
+</a>
+
+<a href="pdf-to-ppt.html" class="card">
+    <div class="icon">📄</div>
+    <div class="title">PDF TO POWERPOINT</div>
+</a>
+
+<a href="merge-pdf.html" class="card">
+    <div class="icon">📑</div>
+    <div class="title">MERGE PDF</div>
+</a>
+
+<a href="split-pdf.html" class="card">
+    <div class="icon">✂️</div>
+    <div class="title">SPLIT PDF</div>
+</a>
+
+<a href="compress-pdf.html" class="card">
+    <div class="icon">🗜️</div>
+    <div class="title">COMPRESS PDF</div>
+</a>
+
+<a href="about.html" class="card">
+    <div class="icon">ℹ️</div>
+    <div class="title">ABOUT</div>
+</a>
+
+</div>
+
+</div>
+
+<footer>
+    © 2026 EEN CONVERT
+</footer>
+
+<script>
+const searchInput = document.getElementById("search");
+
+searchInput.addEventListener("keyup", function(){
+
+let filter = this.value.toUpperCase();
+
+let cards = document.querySelectorAll(".card");
+
+cards.forEach(card => {
+
+let text = card.innerText.toUpperCase();
+
+if(text.indexOf(filter) > -1){
+    card.style.display = "";
+}else{
+    card.style.display = "none";
+}
+
+});
+
+});
+</script>
+
+</body>
+</html>
