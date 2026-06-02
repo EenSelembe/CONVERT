@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MERGE PDF - EEN CONVERT</title>
+
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f0f0f;
+    color:white;
+    min-height:100vh;
+}
+
+.header{
+    background:#181818;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid #2d2d2d;
+}
+
+.back-btn{
+    text-decoration:none;
+    color:#00d26a;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.title{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.container{
+    padding:15px;
+}
+
+.card{
+    background:#1b1b1b;
+    border:1px solid #2d2d2d;
+    border-radius:15px;
+    padding:15px;
+}
+
+input[type=file],
+input[type=text]{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#2a2a2a;
+    color:white;
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.merge-btn{
+    background:#00d26a;
+    color:white;
+}
+
+.download-btn{
+    background:#2196F3;
+    color:white;
+    display:none;
+}
+
+.share-btn{
+    background:#ff9800;
+    color:white;
+    display:none;
+}
+
+.status{
+    text-align:center;
+    margin-top:15px;
+    color:#00d26a;
+}
+
+.file-list{
+    margin-top:15px;
+}
+
+.file-item{
+    background:#2a2a2a;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<script>
+
+if(localStorage.getItem("login") !== "true"){
+    window.location.href="index.html";
+}
+
+</script>
+
+<div class="header">
+
+<a href="home.html" class="back-btn">
+←
+</a>
+
+<div class="title">
+MERGE PDF
+</div>
+
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<label>Pilih Beberapa PDF</label>
+
+<input
+type="file"
+id="pdfFiles"
+accept=".pdf"
+multiple>
+
+<input
+type="text"
+id="filename"
+placeholder="Nama PDF"
+value="merged-pdf">
+
+<button
+class="merge-btn"
+onclick="mergePDFs()">
+MERGE PDF
+</button>
+
+<button
+id="downloadBtn"
+class="download-btn"
+onclick="downloadPDF()">
+DOWNLOAD PDF
+</button>
+
+<button
+id="shareBtn"
+class="share-btn"
+onclick="sharePDF()">
+SHARE PDF
+</button>
+
+<div
+id="status"
+class="status">
+</div>
+
+<div
+id="fileList"
+class="file-list">
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let mergedPdfBlob = null;
+
+document
+.getElementById("pdfFiles")
+.addEventListener(
+"change",
+showFiles
+);
+
+function showFiles(){
+
+const files =
+document.getElementById("pdfFiles").files;
+
+const fileList =
+document.getElementById("fileList");
+
+fileList.innerHTML = "";
+
+for(let i=0;i<files.length;i++){
+
+const div =
+document.createElement("div");
+
+div.className =
+"file-item";
+
+div.innerText =
+(i+1)+". "+files[i].name;
+
+fileList.appendChild(div);
+
+}
+
+}
+async function mergePDFs(){
+
+const files =
+document.getElementById("pdfFiles").files;
+
+if(files.length < 2){
+
+alert(
+"Pilih minimal 2 file PDF"
+);
+
+return;
+
+}
+
+try{
+
+document.getElementById("status").innerText =
+"Menggabungkan PDF...";
+
+const mergedPdf =
+await PDFLib.PDFDocument.create();
+
+for(let i=0;i<files.length;i++){
+
+const fileBytes =
+await files[i].arrayBuffer();
+
+const pdf =
+await PDFLib.PDFDocument.load(
+fileBytes
+);
+
+const pages =
+await mergedPdf.copyPages(
+pdf,
+pdf.getPageIndices()
+);
+
+pages.forEach(page=>{
+
+mergedPdf.addPage(page);
+
+});
+
+}
+
+const mergedBytes =
+await mergedPdf.save();
+
+mergedPdfBlob =
+new Blob(
+[mergedBytes],
+{
+type:"application/pdf"
+}
+);
+
+document.getElementById("downloadBtn").style.display =
+"block";
+
+document.getElementById("shareBtn").style.display =
+"block";
+
+document.getElementById("status").innerText =
+"✅ PDF berhasil digabung";
+
+}catch(err){
+
+console.error(err);
+
+document.getElementById("status").innerText =
+"❌ " + err.message;
+
+}
+
+}
+function downloadPDF(){
+
+if(!mergedPdfBlob){
+return;
+}
+
+const filename =
+document.getElementById("filename").value.trim()
+|| "merged-pdf";
+
+const link =
+document.createElement("a");
+
+link.href =
+URL.createObjectURL(
+mergedPdfBlob
+);
+
+link.download =
+filename + ".pdf";
+
+link.click();
+
+}
+
+async function sharePDF(){
+
+try{
+
+if(!mergedPdfBlob){
+return;
+}
+
+const filename =
+document.getElementById("filename").value.trim()
+|| "merged-pdf";
+
+const file =
+new File(
+[mergedPdfBlob],
+filename + ".pdf",
+{
+type:"application/pdf"
+}
+);
+
+if(
+navigator.canShare &&
+navigator.canShare({
+files:[file]
+})
+){
+
+await navigator.share({
+
+title:"EEN CONVERT",
+
+files:[file]
+
+});
+
+}else{
+
+alert(
+"Fitur share tidak didukung perangkat ini."
+);
+
+}
+
+}catch(err){
+
+console.error(err);
+
+alert(err.message);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
