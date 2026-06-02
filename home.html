@@ -101,6 +101,7 @@ footer{
 }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -151,9 +152,9 @@ footer{
     <div class="title">SPLIT PDF</div>
 </a>
 
-<a href="about.html" class="card">
-    <div class="icon">ℹ️</div>
-    <div class="title">ABOUT</div>
+<a href="index.html" class="card" onclick="logout()">
+    <div class="icon">🚪</div>
+    <div class="title">LOGOUT</div>
 </a>
 
 </div>
@@ -186,6 +187,10 @@ if(text.indexOf(filter) > -1){
 });
 
 });
+
+function logout() {
+    window.location.href = "index.html";
+}
 </script>
 
 </body>
