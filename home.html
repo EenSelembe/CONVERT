@@ -104,6 +104,13 @@ footer{
 
 <body>
 
+<!-- 🔐 AUTO CEK LOGIN (WAJIB) -->
+<script>
+if (!localStorage.getItem("login")) {
+    window.location.replace("index.html");
+}
+</script>
+
 <header>
     <div class="logo">EEN CONVERT</div>
     <div class="subtitle">Convert Files Fast & Easy</div>
@@ -152,7 +159,7 @@ footer{
     <div class="title">SPLIT PDF</div>
 </a>
 
-<!-- FIX LOGOUT -->
+<!-- 🚪 LOGOUT FIX -->
 <a href="#" class="card" onclick="logout(event)">
     <div class="icon">🚪</div>
     <div class="title">LOGOUT</div>
@@ -167,6 +174,7 @@ footer{
 </footer>
 
 <script>
+// SEARCH
 const searchInput = document.getElementById("search");
 
 searchInput.addEventListener("keyup", function(){
@@ -184,9 +192,14 @@ searchInput.addEventListener("keyup", function(){
     });
 });
 
-// FIX LOGOUT FUNCTION
+// 🚪 LOGOUT FUNCTION (FIX TOTAL)
 function logout(event) {
     event.preventDefault();
+
+    // hapus status login
+    localStorage.removeItem("login");
+
+    // paksa kembali ke login
     window.location.replace("index.html");
 }
 </script>
