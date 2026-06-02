@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EEN CONVERT - Login</title>
 
+<!-- PWA SUPPORT (opsional tapi disarankan) -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f0f0f">
+
 <style>
 *{
     margin:0;
@@ -107,6 +111,7 @@ button:hover{
 }
 </style>
 </head>
+
 <body>
 
 <div class="login-box">
@@ -136,7 +141,7 @@ button:hover{
 
 <script>
 
-// Daftar akun
+// 🔥 DATABASE USER
 const users = [
     {
         username: "alfa",
@@ -148,11 +153,12 @@ const users = [
     }
 ];
 
-// Jika sudah login langsung ke home
-if(localStorage.getItem("login") === "true"){
-    window.location.href = "home.html";
+// 🚪 JIKA SUDAH LOGIN, LANGSUNG KE HOME
+if (localStorage.getItem("login") === "true") {
+    window.location.replace("home.html");
 }
 
+// 🔑 LOGIN FUNCTION
 function login(){
 
     const username =
@@ -168,38 +174,35 @@ function login(){
 
     if(validUser){
 
+        // SIMPAN SESSION LOGIN
         localStorage.setItem("login","true");
         localStorage.setItem("username",username);
 
-        window.location.href = "home.html";
+        window.location.replace("home.html");
 
-    }else{
+    } else {
 
         document.getElementById("error").innerText =
         "Username atau password salah!";
     }
 }
 
+// 👁️ TOGGLE PASSWORD
 function togglePassword(){
 
     const pass =
-    document.getElementById("password");
+        document.getElementById("password");
 
-    if(pass.type === "password"){
-        pass.type = "text";
-    }else{
-        pass.type = "password";
-    }
+    pass.type = (pass.type === "password") ? "text" : "password";
 }
 
-// Enter untuk login
-document.addEventListener("keypress",function(e){
-
+// ⌨️ ENTER UNTUK LOGIN
+document.addEventListener("keydown", function(e){
     if(e.key === "Enter"){
         login();
     }
-
 });
+
 </script>
 
 </body>
