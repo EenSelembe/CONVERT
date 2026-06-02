@@ -6,109 +6,124 @@
 <title>PDF TO IMAGE - EEN CONVERT</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
 }
 
 body{
-background:#0f0f0f;
-color:white;
-min-height:100vh;
+    background:#0f0f0f;
+    color:white;
+    min-height:100vh;
 }
 
 .header{
-background:#181818;
-padding:15px;
-display:flex;
-align-items:center;
-gap:10px;
-border-bottom:1px solid #2d2d2d;
+    background:#181818;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid #2d2d2d;
 }
 
 .back-btn{
-text-decoration:none;
-color:#00d26a;
-font-size:18px;
-font-weight:bold;
+    text-decoration:none;
+    color:#00d26a;
+    font-size:20px;
+    font-weight:bold;
 }
 
 .title{
-font-size:18px;
-font-weight:bold;
+    font-size:18px;
+    font-weight:bold;
 }
 
 .container{
-padding:15px;
+    padding:15px;
 }
 
 .card{
-background:#1b1b1b;
-border:1px solid #2d2d2d;
-border-radius:15px;
-padding:15px;
+    background:#1b1b1b;
+    border:1px solid #2d2d2d;
+    border-radius:15px;
+    padding:15px;
 }
 
 input[type=file],
 input[type=text]{
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-background:#2a2a2a;
-color:white;
-margin-top:10px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#2a2a2a;
+    color:white;
+    margin-top:10px;
 }
 
 button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-cursor:pointer;
-margin-top:10px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
 }
 
 .convert-btn{
-background:#00d26a;
-color:white;
-}
-
-.download-btn{
-background:#2196F3;
-color:white;
-display:none;
-}
-
-.share-btn{
-background:#ff9800;
-color:white;
-display:none;
-}
-
-.preview{
-display:grid;
-grid-template-columns:1fr;
-gap:15px;
-margin-top:15px;
-}
-
-.preview canvas{
-width:100%;
-border-radius:10px;
-background:white;
+    background:#00d26a;
+    color:white;
+    margin-top:10px;
 }
 
 .status{
-margin-top:15px;
-text-align:center;
-color:#00d26a;
+    text-align:center;
+    margin-top:15px;
+    color:#00d26a;
+}
+
+.results{
+    margin-top:20px;
+}
+
+.result-card{
+    background:#1b1b1b;
+    border:1px solid #2d2d2d;
+    border-radius:15px;
+    padding:12px;
+    margin-bottom:15px;
+}
+
+.result-card img{
+    width:100%;
+    border-radius:10px;
+    background:white;
+}
+
+.filename{
+    margin:10px 0;
+    color:#ccc;
+    text-align:center;
+}
+
+.action-buttons{
+    display:flex;
+    gap:10px;
+}
+
+.download-btn{
+    flex:1;
+    background:#2196F3;
+    color:white;
+}
+
+.share-btn{
+    flex:1;
+    background:#ff9800;
+    color:white;
 }
 </style>
 </head>
@@ -116,13 +131,13 @@ color:#00d26a;
 
 <script>
 if(localStorage.getItem("login") !== "true"){
-window.location.href="index.html";
+    window.location.href="index.html";
 }
 </script>
 
 <div class="header">
-<a href="home.html" class="back-btn">←</a>
-<div class="title">PDF TO IMAGE</div>
+    <a href="home.html" class="back-btn">←</a>
+    <div class="title">PDF TO IMAGE</div>
 </div>
 
 <div class="container">
@@ -130,7 +145,11 @@ window.location.href="index.html";
 <div class="card">
 
 <label>Pilih PDF</label>
-<input type="file" id="pdfFile" accept=".pdf">
+
+<input
+type="file"
+id="pdfFile"
+accept=".pdf">
 
 <input
 type="text"
@@ -144,24 +163,16 @@ onclick="convertPDF()">
 CONVERT TO IMAGE
 </button>
 
-<button
-id="downloadBtn"
-class="download-btn"
-onclick="downloadZIP()">
-DOWNLOAD ZIP
-</button>
+<div
+id="status"
+class="status">
+</div>
 
-<button
-id="shareBtn"
-class="share-btn"
-onclick="shareZIP()">
-SHARE ZIP
-</button>
+</div>
 
-<div id="status" class="status"></div>
-
-<div id="preview" class="preview"></div>
-
+<div
+id="results"
+class="results">
 </div>
 
 </div>
@@ -171,42 +182,46 @@ SHARE ZIP
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
 
-let zipBlob = null;
-
 async function convertPDF(){
 
 const file =
 document.getElementById("pdfFile").files[0];
 
 if(!file){
-alert("Pilih PDF terlebih dahulu");
-return;
+    alert("Pilih PDF terlebih dahulu");
+    return;
 }
 
-const preview =
-document.getElementById("preview");
+const results =
+document.getElementById("results");
 
-preview.innerHTML="";
+results.innerHTML = "";
 
 document.getElementById("status").innerText =
 "Memproses PDF...";
 
-const pdfData = await file.arrayBuffer();
+try{
+
+const pdfData =
+await file.arrayBuffer();
 
 const pdf =
 await pdfjsLib.getDocument({
-data:pdfData
+    data: pdfData
 }).promise;
 
-const zip = new JSZip();
+for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
 
-for(let pageNum=1; pageNum<=pdf.numPages; pageNum++){
+document.getElementById("status").innerText =
+`Memproses halaman ${pageNum} dari ${pdf.numPages}`;
 
 const page =
 await pdf.getPage(pageNum);
 
 const viewport =
-page.getViewport({scale:2});
+page.getViewport({
+    scale:1
+});
 
 const canvas =
 document.createElement("canvas");
@@ -214,85 +229,103 @@ document.createElement("canvas");
 const context =
 canvas.getContext("2d");
 
-canvas.width = viewport.width;
-canvas.height = viewport.height;
+canvas.width =
+viewport.width;
+
+canvas.height =
+viewport.height;
 
 await page.render({
-canvasContext:context,
-viewport:viewport
+    canvasContext: context,
+    viewport: viewport
 }).promise;
 
-preview.appendChild(canvas);
-
-const imageData =
-canvas.toDataURL("image/png");
-
-zip.file(
-`${document.getElementById("filename").value || "hasil"}-page-${pageNum}.png`,
-imageData.split(",")[1],
-{
-base64:true
-}
+const imageUrl =
+canvas.toDataURL(
+"image/jpeg",
+0.9
 );
 
-document.getElementById("status").innerText =
-`Memproses halaman ${pageNum}/${pdf.numPages}`;
+const baseName =
+document.getElementById("filename").value.trim() || "hasil";
+
+const imageName =
+`${baseName}-page-${pageNum}.jpg`;
+
+const card =
+document.createElement("div");
+
+card.className =
+"result-card";
+
+card.innerHTML = `
+<img src="${imageUrl}">
+<div class="filename">${imageName}</div>
+
+<div class="action-buttons">
+
+<button
+class="download-btn"
+onclick="downloadImage('${imageUrl}','${imageName}')">
+DOWNLOAD
+</button>
+
+<button
+class="share-btn"
+onclick="shareImage('${imageUrl}','${imageName}')">
+SHARE
+</button>
+
+</div>
+`;
+
+results.appendChild(card);
 
 }
 
-zipBlob =
-await zip.generateAsync({
-type:"blob"
-});
+document.getElementById("status").innerText =
+`✅ Selesai. ${pdf.numPages} halaman berhasil dikonversi`;
 
-document.getElementById("downloadBtn").style.display =
-"block";
+}catch(err){
 
-document.getElementById("shareBtn").style.display =
-"block";
+console.error(err);
 
 document.getElementById("status").innerText =
-`✅ Selesai (${pdf.numPages} halaman)`;
+"❌ Gagal memproses PDF";
 
 }
 
-function downloadZIP(){
+}
 
-if(!zipBlob) return;
+function downloadImage(url,name){
 
-const filename =
-document.getElementById("filename").value ||
-"hasil";
-
-const link =
+const a =
 document.createElement("a");
 
-link.href =
-URL.createObjectURL(zipBlob);
+a.href = url;
 
-link.download =
-filename + ".zip";
+a.download = name;
 
-link.click();
+a.click();
 
 }
 
-async function shareZIP(){
-
-if(!zipBlob) return;
+async function shareImage(url,name){
 
 try{
 
-const filename =
-document.getElementById("filename").value ||
-"hasil";
+const response =
+await fetch(url);
+
+const blob =
+await response.blob();
 
 const file =
 new File(
-[zipBlob],
-filename + ".zip",
+[blob],
+name,
 {
-type:"application/zip"
+type:"image/jpeg"
 }
 );
 
@@ -305,25 +338,25 @@ files:[file]
 
 await navigator.share({
 title:"EEN CONVERT",
-text:"Hasil PDF To Image",
 files:[file]
 });
 
 }else{
 
 alert(
-"Perangkat tidak mendukung fitur share."
+"Fitur share tidak didukung pada perangkat ini."
 );
 
 }
 
 }catch(err){
 
-console.log(err);
+console.error(err);
 
 }
 
 }
+
 </script>
 
 </body>
