@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMAGE TO PDF - EEN CONVERT</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f0f0f;
+    color:white;
+    min-height:100vh;
+}
+
+.header{
+    background:#181818;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid #2d2d2d;
+}
+
+.back-btn{
+    text-decoration:none;
+    color:#00d26a;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.title{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.container{
+    padding:15px;
+}
+
+.card{
+    background:#1b1b1b;
+    border:1px solid #2d2d2d;
+    border-radius:15px;
+    padding:15px;
+    margin-bottom:15px;
+}
+
+input[type=file]{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    background:#2a2a2a;
+    color:white;
+    border:none;
+}
+
+input[type=text]{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    background:#2a2a2a;
+    color:white;
+    border:none;
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.convert-btn{
+    background:#00d26a;
+    color:white;
+}
+
+.download-btn{
+    background:#2196F3;
+    color:white;
+    display:none;
+}
+
+.share-btn{
+    background:#ff9800;
+    color:white;
+    display:none;
+}
+
+.preview{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-top:15px;
+}
+
+.preview img{
+    width:100%;
+    border-radius:10px;
+    border:1px solid #333;
+}
+
+.status{
+    text-align:center;
+    margin-top:10px;
+    color:#00d26a;
+}
+</style>
+</head>
+<body>
+
+<script>
+if(localStorage.getItem("login") !== "true"){
+    window.location.href="index.html";
+}
+</script>
+
+<div class="header">
+    <a href="home.html" class="back-btn">←</a>
+    <div class="title">IMAGE TO PDF</div>
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<label>Pilih Gambar</label>
+<input type="file" id="images" multiple accept="image/*">
+
+<div class="preview" id="preview"></div>
+
+<input
+type="text"
+id="filename"
+placeholder="Nama file PDF"
+value="hasil-konversi">
+
+<button class="convert-btn" onclick="convertPDF()">
+CONVERT TO PDF
+</button>
+
+<button
+id="downloadBtn"
+class="download-btn"
+onclick="downloadPDF()">
+DOWNLOAD PDF
+</button>
+
+<button
+id="shareBtn"
+class="share-btn"
+onclick="sharePDF()">
+SHARE PDF
+</button>
+
+<div class="status" id="status"></div>
+
+</div>
+
+</div>
+
+<script>
+
+let pdfBlob = null;
+
+const preview = document.getElementById("preview");
+
+document.getElementById("images").addEventListener("change",function(){
+
+preview.innerHTML="";
+
+[...this.files].forEach(file=>{
+
+const reader = new FileReader();
+
+reader.onload=function(e){
+
+const img=document.createElement("img");
+img.src=e.target.result;
+
+preview.appendChild(img);
+
+};
+
+reader.readAsDataURL(file);
+
+});
+
+});
+
+async function convertPDF(){
+
+const files=document.getElementById("images").files;
+
+if(files.length===0){
+alert("Pilih gambar terlebih dahulu");
+return;
+}
+
+document.getElementById("status").innerText=
+"Membuat PDF...";
+
+const { jsPDF } = window.jspdf;
+
+const pdf = new jsPDF();
+
+for(let i=0;i<files.length;i++){
+
+const file = files[i];
+
+const dataUrl = await new Promise(resolve=>{
+
+const reader = new FileReader();
+
+reader.onload=e=>resolve(e.target.result);
+
+reader.readAsDataURL(file);
+
+});
+
+const img = new Image();
+
+await new Promise(resolve=>{
+
+img.onload=resolve;
+img.src=dataUrl;
+
+});
+
+const pdfWidth = 210;
+const pdfHeight = (img.height * pdfWidth) / img.width;
+
+if(i>0){
+pdf.addPage();
+}
+
+pdf.addImage(
+dataUrl,
+'JPEG',
+0,
+0,
+pdfWidth,
+pdfHeight
+);
+
+}
+
+pdfBlob = pdf.output("blob");
+
+document.getElementById("downloadBtn").style.display="block";
+document.getElementById("shareBtn").style.display="block";
+
+document.getElementById("status").innerText=
+"✅ PDF berhasil dibuat";
+
+}
+
+function downloadPDF(){
+
+if(!pdfBlob) return;
+
+const filename =
+document.getElementById("filename").value.trim()
+|| "hasil-konversi";
+
+const link = document.createElement("a");
+
+link.href = URL.createObjectURL(pdfBlob);
+
+link.download = filename + ".pdf";
+
+link.click();
+
+}
+
+async function sharePDF(){
+
+if(!pdfBlob){
+return;
+}
+
+try{
+
+const filename =
+document.getElementById("filename").value.trim()
+|| "hasil-konversi";
+
+const file = new File(
+[pdfBlob],
+filename + ".pdf",
+{
+type:"application/pdf"
+}
+);
+
+if(
+navigator.canShare &&
+navigator.canShare({files:[file]})
+){
+
+await navigator.share({
+title:"EEN CONVERT",
+text:"PDF hasil konversi",
+files:[file]
+});
+
+}else{
+
+alert(
+"Fitur share tidak didukung pada perangkat ini."
+);
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+</script>
+
+</body>
+</html>
