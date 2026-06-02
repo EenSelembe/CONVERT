@@ -152,6 +152,7 @@ footer{
     <div class="title">SPLIT PDF</div>
 </a>
 
+<!-- FIX LOGOUT -->
 <a href="#" class="card" onclick="logout(event)">
     <div class="icon">🚪</div>
     <div class="title">LOGOUT</div>
@@ -169,25 +170,21 @@ footer{
 const searchInput = document.getElementById("search");
 
 searchInput.addEventListener("keyup", function(){
+    let filter = this.value.toUpperCase();
+    let cards = document.querySelectorAll(".card");
 
-let filter = this.value.toUpperCase();
+    cards.forEach(card => {
+        let text = card.innerText.toUpperCase();
 
-let cards = document.querySelectorAll(".card");
-
-cards.forEach(card => {
-
-let text = card.innerText.toUpperCase();
-
-if(text.indexOf(filter) > -1){
-    card.style.display = "";
-}else{
-    card.style.display = "none";
-}
-
+        if(text.indexOf(filter) > -1){
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
 });
 
-});
-
+// FIX LOGOUT FUNCTION
 function logout(event) {
     event.preventDefault();
     window.location.replace("index.html");
