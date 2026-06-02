@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PDF TO IMAGE - EEN CONVERT</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <style>
 *{
@@ -179,184 +179,188 @@ class="results">
 
 <script>
 
+if(typeof pdfjsLib === "undefined"){
+    alert("PDF.js gagal dimuat");
+}
+
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 async function convertPDF(){
 
-const file =
-document.getElementById("pdfFile").files[0];
+    if(typeof pdfjsLib === "undefined"){
+        alert("PDF.js belum dimuat");
+        return;
+    }
 
-if(!file){
-    alert("Pilih PDF terlebih dahulu");
-    return;
-}
+    const file =
+    document.getElementById("pdfFile").files[0];
 
-const results =
-document.getElementById("results");
+    if(!file){
+        alert("Pilih PDF terlebih dahulu");
+        return;
+    }
 
-results.innerHTML = "";
+    const results =
+    document.getElementById("results");
 
-document.getElementById("status").innerText =
-"Memproses PDF...";
+    results.innerHTML = "";
 
-try{
+    document.getElementById("status").innerText =
+    "Memproses PDF...";
 
-const pdfData =
-await file.arrayBuffer();
+    try{
 
-const pdf =
-await pdfjsLib.getDocument({
-    data: pdfData
-}).promise;
+        const pdfData =
+        await file.arrayBuffer();
 
-for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
+        const pdf =
+        await pdfjsLib.getDocument({
+            data: pdfData
+        }).promise;
 
-document.getElementById("status").innerText =
-`Memproses halaman ${pageNum} dari ${pdf.numPages}`;
+        for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
 
-const page =
-await pdf.getPage(pageNum);
+            document.getElementById("status").innerText =
+            `Memproses halaman ${pageNum} dari ${pdf.numPages}`;
 
-const viewport =
-page.getViewport({
-    scale:1
-});
+            const page =
+            await pdf.getPage(pageNum);
 
-const canvas =
-document.createElement("canvas");
+            const viewport =
+            page.getViewport({
+                scale:1
+            });
 
-const context =
-canvas.getContext("2d");
+            const canvas =
+            document.createElement("canvas");
 
-canvas.width =
-viewport.width;
+            const context =
+            canvas.getContext("2d");
 
-canvas.height =
-viewport.height;
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
 
-await page.render({
-    canvasContext: context,
-    viewport: viewport
-}).promise;
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
 
-const imageUrl =
-canvas.toDataURL(
-"image/jpeg",
-0.9
-);
+            const imageUrl =
+            canvas.toDataURL(
+                "image/jpeg",
+                0.9
+            );
 
-const baseName =
-document.getElementById("filename").value.trim() || "hasil";
+            const baseName =
+            document.getElementById("filename").value.trim() || "hasil";
 
-const imageName =
-`${baseName}-page-${pageNum}.jpg`;
+            const imageName =
+            `${baseName}-page-${pageNum}.jpg`;
 
-const card =
-document.createElement("div");
+            const card =
+            document.createElement("div");
 
-card.className =
-"result-card";
+            card.className =
+            "result-card";
 
-card.innerHTML = `
-<img src="${imageUrl}">
-<div class="filename">${imageName}</div>
+            card.innerHTML = `
+            <img src="${imageUrl}">
+            <div class="filename">${imageName}</div>
 
-<div class="action-buttons">
+            <div class="action-buttons">
 
-<button
-class="download-btn"
-onclick="downloadImage('${imageUrl}','${imageName}')">
-DOWNLOAD
-</button>
+            <button
+            class="download-btn"
+            onclick="downloadImage('${imageUrl}','${imageName}')">
+            DOWNLOAD
+            </button>
 
-<button
-class="share-btn"
-onclick="shareImage('${imageUrl}','${imageName}')">
-SHARE
-</button>
+            <button
+            class="share-btn"
+            onclick="shareImage('${imageUrl}','${imageName}')">
+            SHARE
+            </button>
 
-</div>
-`;
+            </div>
+            `;
 
-results.appendChild(card);
+            results.appendChild(card);
 
-}
+        }
 
-document.getElementById("status").innerText =
-`✅ Selesai. ${pdf.numPages} halaman berhasil dikonversi`;
+        document.getElementById("status").innerText =
+        `✅ Selesai. ${pdf.numPages} halaman berhasil dikonversi`;
 
-}catch(err){
+    }catch(err){
 
-console.error(err);
+        console.error(err);
 
-document.getElementById("status").innerText =
-"❌ Gagal memproses PDF" + err.message;
+        document.getElementById("status").innerText =
+        "❌ " + err.message;
 
-}
+        alert(err.message);
+
+    }
 
 }
 
 function downloadImage(url,name){
 
-const a =
-document.createElement("a");
+    const a =
+    document.createElement("a");
 
-a.href = url;
-
-a.download = name;
-
-a.click();
+    a.href = url;
+    a.download = name;
+    a.click();
 
 }
 
 async function shareImage(url,name){
 
-try{
+    try{
 
-const response =
-await fetch(url);
+        const response =
+        await fetch(url);
 
-const blob =
-await response.blob();
+        const blob =
+        await response.blob();
 
-const file =
-new File(
-[blob],
-name,
-{
-type:"image/jpeg"
+        const file =
+        new File(
+        [blob],
+        name,
+        {
+            type:"image/jpeg"
+        });
+
+        if(
+        navigator.canShare &&
+        navigator.canShare({
+            files:[file]
+        })
+        ){
+
+            await navigator.share({
+                title:"EEN CONVERT",
+                files:[file]
+            });
+
+        }else{
+
+            alert(
+            "Fitur share tidak didukung pada perangkat ini."
+            );
+
+        }
+
+    }catch(err){
+
+        console.error(err);
+
+    }
+
 }
-);
-
-if(
-navigator.canShare &&
-navigator.canShare({
-files:[file]
-})
-){
-
-await navigator.share({
-title:"EEN CONVERT",
-files:[file]
-});
-
-}else{
-
-alert(
-"Fitur share tidak didukung pada perangkat ini."
-);
-
-}
-
-}catch(err){
-
-console.error(err);
-
-}
-
-}
-
 </script>
 
 </body>
