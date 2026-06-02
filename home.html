@@ -188,8 +188,9 @@ if(text.indexOf(filter) > -1){
 
 });
 
-function logout() {
-    window.location.href = "index.html";
+function logout(event) {
+    event.preventDefault();
+    window.location.replace("index.html");
 }
 </script>
 
