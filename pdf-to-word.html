@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF TO WORD - EEN CONVERT</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f0f0f;
+    color:white;
+    min-height:100vh;
+}
+
+.header{
+    background:#181818;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid #2d2d2d;
+}
+
+.back-btn{
+    text-decoration:none;
+    color:#00d26a;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.title{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.container{
+    padding:15px;
+}
+
+.card{
+    background:#1b1b1b;
+    border:1px solid #2d2d2d;
+    border-radius:15px;
+    padding:15px;
+}
+
+input[type=file],
+input[type=text]{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#2a2a2a;
+    color:white;
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    margin-top:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.convert-btn{
+    background:#00d26a;
+    color:white;
+}
+
+.download-btn{
+    background:#2196F3;
+    color:white;
+    display:none;
+}
+
+.share-btn{
+    background:#ff9800;
+    color:white;
+    display:none;
+}
+
+.status{
+    text-align:center;
+    margin-top:15px;
+    color:#00d26a;
+}
+
+.preview{
+    margin-top:15px;
+    background:white;
+    color:black;
+    padding:15px;
+    border-radius:10px;
+    max-height:400px;
+    overflow:auto;
+    white-space:pre-wrap;
+}
+</style>
+</head>
+<body>
+
+<script>
+if(localStorage.getItem("login") !== "true"){
+    window.location.href = "index.html";
+}
+</script>
+
+<div class="header">
+    <a href="home.html" class="back-btn">←</a>
+    <div class="title">PDF TO WORD</div>
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<label>Pilih File PDF</label>
+
+<input
+type="file"
+id="pdfFile"
+accept=".pdf">
+
+<input
+type="text"
+id="filename"
+value="hasil-word"
+placeholder="Nama File Word">
+
+<button
+class="convert-btn"
+onclick="convertPDFToWord()">
+CONVERT TO WORD
+</button>
+
+<button
+id="downloadBtn"
+class="download-btn"
+onclick="downloadWord()">
+DOWNLOAD WORD
+</button>
+
+<button
+id="shareBtn"
+class="share-btn"
+onclick="shareWord()">
+SHARE WORD
+</button>
+
+<div
+id="status"
+class="status">
+</div>
+
+<div
+id="preview"
+class="preview">
+Preview teks PDF akan tampil di sini...
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+let extractedText = "";
+let docBlob = null;
+
+async function convertPDFToWord(){
+
+    const file =
+    document.getElementById("pdfFile").files[0];
+
+    if(!file){
+        alert("Pilih file PDF terlebih dahulu");
+        return;
+    }
+
+    try{
+
+        extractedText = "";
+
+        document.getElementById("status").innerText =
+        "Membaca PDF...";
+
+        const pdfData =
+        await file.arrayBuffer();
+
+        const pdf =
+        await pdfjsLib.getDocument({
+            data: pdfData
+        }).promise;
+
+        for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
+
+            const page =
+            await pdf.getPage(pageNum);
+
+            const content =
+            await page.getTextContent();
+
+            const strings =
+            content.items.map(
+                item => item.str
+            );
+
+            extractedText +=
+            strings.join(" ") + "\n\n";
+
+        }
+
+        document.getElementById("preview").textContent =
+        extractedText;
+
+        const {
+            Document,
+            Packer,
+            Paragraph
+        } = docx;
+
+        const paragraphs =
+        extractedText
+        .split("\n")
+        .filter(line => line.trim() !== "")
+        .map(line =>
+            new Paragraph({
+                text: line
+            })
+        );
+
+        const doc =
+        new Document({
+            sections:[
+                {
+                    properties:{},
+                    children:paragraphs
+                }
+            ]
+        });
+
+        docBlob =
+        await Packer.toBlob(doc);
+
+        document.getElementById("downloadBtn").style.display =
+        "block";
+
+        document.getElementById("shareBtn").style.display =
+        "block";
+
+        document.getElementById("status").innerText =
+        "✅ Word berhasil dibuat";
+
+    }catch(err){
+
+        console.error(err);
+
+        document.getElementById("status").innerText =
+        "❌ " + err.message;
+
+        alert(err.message);
+
+    }
+
+}
+
+function downloadWord(){
+
+    if(!docBlob) return;
+
+    const filename =
+    document.getElementById("filename").value.trim()
+    || "hasil-word";
+
+    saveAs(
+        docBlob,
+        filename + ".docx"
+    );
+
+}
+
+async function shareWord(){
+
+    try{
+
+        if(!docBlob) return;
+
+        const filename =
+        document.getElementById("filename").value.trim()
+        || "hasil-word";
+
+        const file =
+        new File(
+            [docBlob],
+            filename + ".docx",
+            {
+                type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+        );
+
+        if(
+            navigator.canShare &&
+            navigator.canShare({
+                files:[file]
+            })
+        ){
+
+            await navigator.share({
+                title:"EEN CONVERT",
+                files:[file]
+            });
+
+        }else{
+
+            alert(
+            "Fitur share tidak didukung perangkat ini."
+            );
+
+        }
+
+    }catch(err){
+
+        console.error(err);
+
+    }
+
+}
+</script>
+
+</body>
+</html>
